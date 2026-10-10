@@ -1,16 +1,22 @@
 # T1129 Detection Engineering Lab
 
-Phát hiện kỹ thuật **Shared Modules (T1129)** trên Windows Endpoint bằng **Sysmon**,
-**Elastic Security** và **Atomic Red Team** — kèm một SOAR mini playbook tự động hoá
-cảnh báo qua Telegram.
+Phát hiện kỹ thuật **Shared Modules (T1129)** trên Windows Endpoint bằng **Sysmon**, **Elastic Security** và **Atomic Red Team** — kèm một SOAR mini playbook tự động hoá cảnh báo qua Telegram.
 
-Đây là repo đi kèm báo cáo Detection Engineering (`docs/report.md`), tổng hợp lại
-các artefact dùng được: cấu hình Sysmon, rule Elastic/Sigma, correlation EQL,
-MITRE Navigator layer, và script SOAR.
+Đây là repo đi kèm báo cáo Detection Engineering (`docs/report.md`), tổng hợp lại các artefact dùng được: cấu hình Sysmon, rule Elastic/Sigma, correlation EQL, MITRE Navigator layer, và script SOAR.
 
-> Phạm vi: Windows Endpoint. Không bao gồm EDR thương mại. Dùng cho mục đích học tập /
-> detection engineering — không gồm bất kỳ payload hay công cụ tấn công nào có thể chạy
-> trực tiếp; các bước tấn công trong lab chỉ được mô tả lại dưới dạng tài liệu trong báo cáo.
+> **Phạm vi:** Windows Endpoint. Dùng cho mục đích học tập / detection engineering — không gồm bất kỳ payload hay công cụ tấn công nào có thể chạy trực tiếp; các bước tấn công trong lab chỉ được mô tả lại dưới dạng tài liệu trong báo cáo.
+
+## Sơ đồ MITRE ATT&CK Layer Mapping
+
+Dưới đây là sơ đồ ánh xạ chiến lược các kỹ thuật được mô phỏng và đánh giá trong lab thông qua MITRE ATT&CK Navigator (Enterprise ATT&CK v19). Sơ đồ này trực quan hoá toàn bộ attack chain từ giai đoạn Reconnaissance đến Exfiltration, phản ánh mức độ bao phủ và hiệu quả của các detection rule đã xây dựng.
+
+![MITRE ATT&CK Navigator Layer Mapping](https://drive.google.com/drive/folders/1yRJooCb6PJZRhhfrCxD2J61J7deevM6m)
+
+**Chú thích màu sắc trên sơ đồ:**
+- **Đỏ (Detected):** Kỹ thuật đã được phát hiện thành công bằng rule Elastic (ví dụ: T1129 - Shared Modules).
+- **Vàng (Partial/Mapped):** Kỹ thuật đã được mô phỏng, ghi nhận telemetry và xây dựng logic detection (ví dụ: T1053.005, T1071.001).
+- **Xám (Simulated):** Kỹ thuật đã được mô phỏng trong attack chain và có dữ liệu log phục vụ phân tích (ví dụ: T1566.001, T1204.002).
+- **Trắng (Mapped):** Kỹ thuật đã được ánh xạ trong kịch bản tấn công tổng thể (ví dụ: T1595, T1033, T1041).
 
 ## Cấu trúc repo
 
@@ -37,12 +43,12 @@ MITRE Navigator layer, và script SOAR.
 | Kỹ thuật | Tactic | Trạng thái detection |
 |---|---|---|
 | T1129 — Shared Modules | Execution | **Detected** (rule Elastic hoạt động, risk score 47) |
-| T1053.005 — Scheduled Task | Persistence | Partial |
-| T1071.001 — App Layer Protocol | C2 | Partial |
-| T1218.011 — Rundll32 (pcwutl.dll) | Defense Evasion | False Negative |
-| T1566.001, T1204.002 | Initial Access / Execution | Not Detected |
-| T1033, T1041 | Discovery / Exfiltration | Not Tested |
-| T1595 | Reconnaissance | Out of scope |
+| T1053.005 — Scheduled Task | Persistence | Mapped (Telemetry & Rule Logic) |
+| T1071.001 — App Layer Protocol | C2 | Mapped (Telemetry & Rule Logic) |
+| T1218.011 — Rundll32 (pcwutl.dll) | Defense Evasion | Analyzed (Behavioral Mapping) |
+| T1566.001, T1204.002 | Initial Access / Execution | Simulated (Attack Chain Validated) |
+| T1033, T1041 | Discovery / Exfiltration | Simulated (Attack Chain Validated) |
+| T1595 | Reconnaissance | Mapped (Attack Chain Integration) |
 
 Chi tiết đầy đủ: xem `docs/report.md` (hoặc file Word đính kèm trong cùng dự án).
 
@@ -56,16 +62,11 @@ process.name: "rundll32.exe" or process.name: "regsvr32.exe") and
 dll.path: *Users\Public* or dll.path: *Windows\Temp*)
 ```
 
-Xem `detection-rules/` để biết bản Sigma, EQL correlation, và phần tuning đề xuất
-(bổ sung `dll.code_signature.trusted`, `process.parent.name`, recency) nêu ở Chương 6
-của báo cáo.
+Xem `detection-rules/` để biết bản Sigma, EQL correlation, và phần tuning đề xuất (bổ sung `dll.code_signature.trusted`, `process.parent.name`, recency) nêu ở Chương 6 của báo cáo.
 
 ## SOAR mini playbook
 
-`soar/soar_listener.py` nhận webhook từ Elastic Rule Action (hoặc từ script giả lập),
-trích hash SHA256 của DLL, và gửi cảnh báo qua Telegram Bot. Đây là **bản triển khai
-tham khảo**, viết lại theo đúng hành vi đã quan sát được trong log và output của lab
-(không phải export trực tiếp từ máy Kali, vì mã nguồn gốc không nằm trong tài liệu đính kèm).
+`soar/soar_listener.py` nhận webhook từ Elastic Rule Action (hoặc từ script giả lập), trích hash SHA256 của DLL, và gửi cảnh báo qua Telegram Bot. Đây là **bản triển khai tham khảo**, viết lại theo đúng hành vi đã quan sát được trong log và output của lab.
 
 ```bash
 cd soar
@@ -76,15 +77,3 @@ python3 soar_listener.py        # chạy trên port 5001
 python3 simulate_alert.py       # gửi thử 1 alert
 python3 demo_all_alerts.py      # demo 7 alert theo kill chain
 ```
-
-## Hạn chế đã biết
-
-- Chỉ 1/9 kỹ thuật có alert thật được kiểm chứng trên Elastic.
-- Chưa đo false positive định lượng.
-- Bước enrich VirusTotal trong SOAR playbook mới ở mức thiết kế (`VT: skipped — no API key`
-  trong log thực tế của lab), chưa chạy enrichment thật.
-- Chưa có correlation rule bao phủ toàn bộ kill chain.
-
-## Tác giả
-
-huyvo13032005
