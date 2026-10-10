@@ -1,0 +1,20 @@
+Correlation: File Creation (EID 11) -> Image Load (EID 7)
+Cơ sở: trong lab, chênh lệch thời gian đo được giữa FileCreate và ImageLoad của
+cùng một DLL là khoảng 0,5 giây (09:18:26.832 -> 09:18:27.357).
+
+sequence by user.name with maxspan=30s
+  [ file where event.code == "11" and
+    file.path : ("*\\AppData\\*", "*\\Downloads\\*",
+    "*\\Users\\Public\\*", "*\\Windows\\Temp\\*",
+    "*\\T1129-Lab\\*", "*\\T1129-Attack\\*") and
+    file.extension == "dll" ]
+  [ library where event.code == "7" and
+    dll.path : ("*\\AppData\\*", "*\\Downloads\\*",
+    "*\\Users\\Public\\*", "*\\Windows\\Temp\\*",
+    "*\\T1129-Lab\\*", "*\\T1129-Attack\\*") and
+    process.name : ("rundll32.exe", "powershell.exe",
+    "pwsh.exe", "regsvr32.exe") ]
+
+Ghi chú: rule correlation có độ tin cậy cao hơn rule đơn (mục elastic-kql-rule.txt)
+vì đòi hỏi cả 2 điều kiện xảy ra liên tiếp trên cùng user trong 1 cửa sổ thời gian
+ngắn, nhưng có thể bỏ sót DLL được tạo từ lâu rồi mới load (ngoài 30 giây).

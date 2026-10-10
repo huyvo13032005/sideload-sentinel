@@ -1,0 +1,46 @@
+title: Suspicious DLL Load From User-Writable Path
+id: 7a8b9c0d-1e2f-3a4b-5c6d-7e8f9a0b1c2d
+status: experimental
+description: |
+  Phát hiện DLL được nạp từ thư mục user-writable (%TEMP%, %APPDATA%,
+  Downloads, Users\Public, Windows\Temp) bởi các LOLBin phổ biến
+  (rundll32, powershell, regsvr32). Ánh xạ T1129 (Shared Modules)
+  và T1218.011 (Rundll32).
+references:
+  - https://attack.mitre.org/techniques/T1129/
+  - https://attack.mitre.org/techniques/T1218/011/
+  - https://attack.mitre.org/detectionstrategies/DET0018/
+author: T1129 Detection Engineering Lab
+date: 2026/10/09
+tags:
+  - attack.execution
+  - attack.t1129
+  - attack.defense_evasion
+  - attack.t1218.011
+logsource:
+  product: windows
+  category: image_load
+detection:
+  selection_process:
+    Image|endswith:
+      - '\rundll32.exe'
+      - '\powershell.exe'
+      - '\pwsh.exe'
+      - '\regsvr32.exe'
+  selection_path:
+    ImageLoaded|contains:
+      - '\AppData\'
+      - '\Downloads\'
+      - '\Users\Public\'
+      - '\Windows\Temp\'
+      - '\T1129-Lab\'
+      - '\T1129-Attack\'
+  condition: selection_process and selection_path
+falsepositives:
+  - Legitimate software installers loading DLLs from temp directories
+  - Administrative PowerShell scripts loading modules from user profiles
+  - Development/testing tools loading dependencies from AppData
+level: medium
+
+# Tham khảo: SigmaHQ proc_creation_win_lolbin_pcwutl.yml
+# "Code Execution via Pcwutl.dll" — tag attack.stealth, attack.t1218.011

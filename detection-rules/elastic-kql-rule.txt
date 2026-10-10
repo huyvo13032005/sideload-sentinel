@@ -1,0 +1,40 @@
+Rule: Suspicious DLL Load From User-Writable Path
+Severity: Medium | Risk score: 47
+MITRE ATT&CK: Execution (TA0002) -> Shared Modules (T1129)
+Runs every: 5m | Additional look-back time: 1m
+
+Custom query (KQL):
+----------------------------------------------------------------------
+event.code: "7" and
+(process.name: "powershell.exe" or process.name: "pwsh.exe" or
+process.name: "rundll32.exe" or process.name: "regsvr32.exe") and
+(dll.path: *AppData* or dll.path: *Downloads* or
+dll.path: *Users\Public* or dll.path: *Windows\Temp*)
+----------------------------------------------------------------------
+
+Rule bổ sung (tương quan, EID 11): DLL Created In User-Writable or Temporary Directory
+Severity: Low | Risk score: 21
+
+----------------------------------------------------------------------
+event.code: "11" and
+file.extension: "dll" and
+(file.path: *AppData* or file.path: *Downloads* or
+file.path: *Users\Public* or file.path: *Windows\Temp*)
+----------------------------------------------------------------------
+
+Tuning đề xuất (xem Chương 6 báo cáo) — chưa kiểm thử lại trên lab:
+----------------------------------------------------------------------
+event.code: "7" and
+(process.name: "powershell.exe" or process.name: "pwsh.exe" or
+process.name: "rundll32.exe" or process.name: "regsvr32.exe") and
+(dll.path: *AppData* or dll.path: *Downloads* or
+dll.path: *Users\Public* or dll.path: *Windows\Temp*) and
+not dll.code_signature.subject_name: ("Microsoft Corporation" or
+"Google LLC" or "Adobe Inc.")
+----------------------------------------------------------------------
+
+False positive examples:
+- Legitimate software installers loading DLLs from temp directories
+- Administrative PowerShell scripts loading modules from user profiles
+- Development/testing tools loading dependencies from AppData
+- Auto-updater (OneDrive, Teams, Slack) cập nhật DLL vào %TEMP%

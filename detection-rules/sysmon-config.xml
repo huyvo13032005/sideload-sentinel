@@ -1,0 +1,27 @@
+<Sysmon schemaversion="4.82">
+  <HashAlgorithms>sha256</HashAlgorithms>
+  <EventFiltering>
+    <!-- Lưu ý: onmatch="exclude" không có điều kiện con bên trong => KHÔNG lọc gì,
+         mọi Process Creation (EID 1) đều được ghi lại. -->
+    <ProcessCreate onmatch="exclude" />
+
+    <FileCreate onmatch="include">
+      <TargetFilename condition="contains">\T1129-Lab\</TargetFilename>
+    </FileCreate>
+
+    <ImageLoad onmatch="include">
+      <ImageLoaded condition="contains">\T1129-Lab\</ImageLoaded>
+      <Image condition="end with">rundll32.exe</Image>
+    </ImageLoad>
+
+    <NetworkConnect onmatch="include">
+      <Image condition="end with">powershell.exe</Image>
+      <Image condition="end with">rundll32.exe</Image>
+    </NetworkConnect>
+
+    <DnsQuery onmatch="include">
+      <Image condition="end with">powershell.exe</Image>
+      <Image condition="end with">rundll32.exe</Image>
+    </DnsQuery>
+  </EventFiltering>
+</Sysmon>

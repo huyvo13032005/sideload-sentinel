@@ -1,0 +1,32 @@
+{
+  "name": "T1129 Detection Engineering Lab",
+  "versions": { "attack": "19", "navigator": "5.1.0", "layer": "4.5" },
+  "domain": "enterprise-attack",
+  "description": "Trang thai detection cua 9 ky thuat trong attack chain T1129",
+  "techniques": [
+    { "techniqueID": "T1595", "color": "#ffffff", "comment": "Not Tested / Out of scope" },
+    { "techniqueID": "T1129", "color": "#ff0000", "comment": "Detected" },
+    { "techniqueID": "T1566.001", "color": "#a9a9a9", "comment": "Not Detected" },
+    { "techniqueID": "T1204.002", "color": "#a9a9a9", "comment": "Not Detected" },
+    { "techniqueID": "T1053.005", "color": "#ffcc00", "comment": "Partial" },
+    { "techniqueID": "T1071.001", "color": "#ffcc00", "comment": "Partial" },
+    { "techniqueID": "T1033", "color": "#ffffff", "comment": "Not Tested" },
+    { "techniqueID": "T1041", "color": "#ffffff", "comment": "Not Tested" },
+    { "techniqueID": "T1218.011", "color": "#a9a9a9", "comment": "False Negative" }
+  ],
+  "gradient": {
+    "colors": ["#ffffff", "#ff6666", "#ff0000"],
+    "minValue": 0,
+    "maxValue": 100
+  },
+  "legendItems": [
+    { "label": "Detected", "color": "#ff0000" },
+    { "label": "Partial", "color": "#ffcc00" },
+    { "label": "Not Detected / False Negative", "color": "#a9a9a9" },
+    { "label": "Not Tested / Out of scope", "color": "#ffffff" }
+  ],
+  "showTacticRowBackground": false,
+  "tacticRowBackground": "#dddddd",
+  "selectTechniquesAcrossTactics": true,
+  "selectSubtechniquesWithParent": false
+}
