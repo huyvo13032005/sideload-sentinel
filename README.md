@@ -10,7 +10,7 @@ Phát hiện kỹ thuật **Shared Modules (T1129)** trên Windows Endpoint bằ
 
 Dưới đây là sơ đồ ánh xạ chiến lược các kỹ thuật được mô phỏng và đánh giá trong lab thông qua MITRE ATT&CK Navigator (Enterprise ATT&CK v19). Sơ đồ này trực quan hoá toàn bộ attack chain từ giai đoạn Reconnaissance đến Exfiltration, phản ánh mức độ bao phủ và hiệu quả của các detection rule đã xây dựng.
 
-![MITRE ATT&CK Navigator Layer Mapping](https://drive.google.com/drive/folders/1yRJooCb6PJZRhhfrCxD2J61J7deevM6m)
+https://drive.google.com/drive/folders/1yRJooCb6PJZRhhfrCxD2J61J7deevM6m
 
 **Chú thích màu sắc trên sơ đồ:**
 - **Đỏ (Detected):** Kỹ thuật đã được phát hiện thành công bằng rule Elastic (ví dụ: T1129 - Shared Modules).
